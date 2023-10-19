@@ -10,9 +10,10 @@ const {
 } = require("../controllers/productRequest")
 const { authorize, authorizeAdmin } = require("../middleware/auth")
 
+router.get("/", searchForProductRequests, sendResponse)
+
 router.use(authorize)
 router.get("/:id", getSingleProductRequest, sendResponse)
-router.get("/", searchForProductRequests, sendResponse)
 
 router.use(authorizeAdmin)
 router.post("/", newProductRequest, sendResponse)
