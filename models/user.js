@@ -1,30 +1,42 @@
 const bcrypt = require("bcryptjs")
 const mongoose = require("mongoose")
 
-const userSchema = new mongoose.Schema({
-  image: {
-    type: String,
-    default: "",
+const userSchema = new mongoose.Schema(
+  {
+    image: {
+      type: String,
+      default: "",
+    },
+    firstname: {
+      type: String,
+      required: [true, "Please provide your first name!"],
+    },
+    lastname: {
+      type: String,
+      required: [true, "Please provide your last name!"],
+    },
+    username: {
+      type: String,
+      required: [true, "Please provide a username!"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required!"],
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
   },
-  name: {
-    type: String,
-    required: [true, "Please provide your name!"],
-  },
-  username: {
-    type: String,
-    required: [true, "Please provide a username!"],
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required!"],
-  },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
-})
+  {
+    toJSON: {
+      virtuals: true,
+    },
+    collation: { locale: "en", strength: 2 },
+  }
+)
 
 userSchema.methods.comparePassword = async function (plainValue) {
   return await bcrypt.compare(plainValue, this.password)
