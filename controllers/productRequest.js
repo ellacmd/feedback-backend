@@ -50,6 +50,7 @@ module.exports.updateSingleProductRequest = routeTryCatcher(async function (
   }
   next()
 })
+
 module.exports.deleteSingleProductRequest = routeTryCatcher(async function (
   req,
   res,
@@ -61,6 +62,7 @@ module.exports.deleteSingleProductRequest = routeTryCatcher(async function (
   }
   next()
 })
+
 module.exports.updateSingleProductRequest = routeTryCatcher(async function (
   req,
   res,
