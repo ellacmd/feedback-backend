@@ -28,12 +28,17 @@ const productRequestSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
     },
+    toObject: {
+      virtuals: true,
+    },
     collation: { locale: "en", strength: 2 },
+
   }
 )
 
-productRequestSchema.pre(/^findOne/, async function (next) {
-  this.set("comments", await Comment.find({ productRequest: this._id }))
+productRequestSchema.post(/^findOne/, async function (doc, next) {
+  doc.comments = await Comment.find({ productRequest: this._id })
+  next()
 })
 
 module.exports = mongoose.model("ProductRequest", productRequestSchema)
