@@ -1,5 +1,5 @@
 const User = require("../models/user")
-const { routeTryCatcher } = require("../utils/controller.js")
+const { routeTryCatcher, QueryBuilder } = require("../utils/controller.js")
 const { signJwt } = require("../utils/security.js")
 
 async function createUser(userData = {}) {
@@ -73,6 +73,23 @@ module.exports.loginUser = routeTryCatcher(async function (req, res, next) {
     user,
     token,
     message: "Logged in!",
+  }
+  next()
+})
+
+module.exports.searchForUsers = routeTryCatcher(async function (
+  req,
+  res,
+  next
+) {
+  const UserQueryBuilder = new QueryBuilder(User, req.query)
+  const users = await UserQueryBuilder.find()
+  req.statusCode = 200
+  req.response = {
+    users,
+    count: users.length,
+    hasMore: users.length >= UserQueryBuilder.limit,
+    page: UserQueryBuilder.page,
   }
   next()
 })

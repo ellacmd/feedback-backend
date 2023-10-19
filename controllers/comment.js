@@ -1,5 +1,5 @@
 const Comment = require("../models/comment")
-const { routeTryCatcher } = require("../utils/controller.js")
+const { routeTryCatcher, QueryBuilder } = require("../utils/controller.js")
 
 async function createNewComment(CommentData = {}) {
   const newComment = new Comment({ ...CommentData })
