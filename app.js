@@ -6,6 +6,7 @@ var logger = require("morgan")
 require("dotenv").config()
 var indexRouter = require("./routes/index")
 var usersRouter = require("./routes/users")
+var productRequestsRouter = require("./routes/productRequests")
 
 var app = express()
 
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/", indexRouter)
 app.use("/users", usersRouter)
+app.use("/product-requests", productRequestsRouter)
 
 app.use(function (req, res, next) {
   next(createError(404))
