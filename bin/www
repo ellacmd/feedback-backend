@@ -5,9 +5,11 @@
  */
 
 const app = require("../app")
-const debug = require("debug")("prod-feedback:server")
+const debug = require("debug")("prod-requests:server")
 const http = require("http")
 const mongoose = require("mongoose")
+const socketServer = require("../socket.io/server")
+
 /**
  * Get port from environment and store in Express.
  */
@@ -20,7 +22,9 @@ app.set("port", port)
  */
 
 const server = http.createServer(app)
+socketServer(server)
 mongoose.connect("mongodb://127.0.0.1:27017/prod-feedback")
+
 /**
  * Listen on provided port, on all network interfaces.
  */
