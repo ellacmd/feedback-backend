@@ -8,13 +8,11 @@ const {
   deleteSingleComment,
   searchForComments,
 } = require("../controllers/comments")
-const { authorize, authorizeAdmin } = require("../middleware/auth")
+const { authorize } = require("../middleware/auth")
 
+router.get("/", searchForComments, sendResponse)
 router.use(authorize)
 router.get("/:id", getSingleComment, sendResponse)
-router.get("/", searchForComments, sendResponse)
-
-router.use(authorizeAdmin)
 router.post("/", createComment, sendResponse)
 router.put("/:id", updateSingleComment, sendResponse)
 router.delete("/:id", deleteSingleComment, sendResponse)
