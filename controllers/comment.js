@@ -6,6 +6,8 @@ async function createNewComment(CommentData = {}) {
   return await newComment.save()
 }
 
+module.exports.create = createNewComment
+
 module.exports.getSingleComment = routeTryCatcher(async function (
   req,
   res,
