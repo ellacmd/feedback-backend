@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const { sendResponse } = require("../utils/response")
+const { sendResponse } = require("../middleware/response")
 const {
   signupUser,
   loginUser,
