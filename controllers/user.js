@@ -3,7 +3,7 @@ const { routeTryCatcher } = require("../utils/controller.js")
 const { signJwt } = require("../utils/security.js")
 
 async function createUser(userData = {}) {
-  const newUser = new User(userData)
+  const newUser = new User({ ...userData, role: "user" })
   return await newUser.save()
 }
 
@@ -12,7 +12,6 @@ module.exports.checkIfIsOwnerAndUserOfIdParam = routeTryCatcher(function (
   res,
   next
 ) {
-  console.log("auth passed")
   if (req.user?._id?.toString() !== req.params.id) return next("Not Allowed!!")
   next()
 })
@@ -33,7 +32,7 @@ module.exports.deleteUser = routeTryCatcher(async function (req, res, next) {
 })
 
 module.exports.updateUser = routeTryCatcher(async function (req, res, next) {
-  req.statusCode = 203
+  req.statusCode = 200
   const { name, image } = req.body
   req.response = {
     user: await User.findByIdAndUpdate(
