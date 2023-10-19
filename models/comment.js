@@ -12,13 +12,18 @@ const commentSchema = new mongoose.Schema({
     ref: "ProductRequest",
     required: [true, "Product Request Id is required!"],
   },
+}, {
+  collation: { locale: 'en', strength: 2 },
+  toJSON: {
+    virtuals: true
+  }
 })
 
 commentSchema.pre(/^find/, async function (next) {
   if (this.options._recursed) {
     return next()
   }
-  this.populate({ path: "user productRequest", options: { _recursed: true } })
+  this.populate({ path: "user", options: { _recursed: true } })
   next()
 })
 
