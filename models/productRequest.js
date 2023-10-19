@@ -12,7 +12,7 @@ const productRequestSchema = new mongoose.Schema(
       enum: ["enhancement", "feature", "bug"],
       required: [true, "A product request must have a category"],
     },
-    upvotes: { type: Number, default: 0 },
+    upvotes: { type: Number, default: 0 }, // sockets
     status: {
       type: String,
       enum: ["suggestion", "planned", "in-progress", "live"],
@@ -21,12 +21,14 @@ const productRequestSchema = new mongoose.Schema(
     description: {
       type: String,
       maxLength: 150,
+      default: "",
     },
   },
   {
     toJSON: {
       virtuals: true,
     },
+    collation: { locale: "en", strength: 2 },
   }
 )
 
