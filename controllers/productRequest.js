@@ -63,26 +63,6 @@ module.exports.deleteSingleProductRequest = routeTryCatcher(async function (
   next()
 })
 
-module.exports.updateSingleProductRequest = routeTryCatcher(async function (
-  req,
-  res,
-  next
-) {
-  req.statusCode = 200
-  req.response = {
-    productRequest: await ProductRequest.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...req.body,
-      },
-      {
-        new: true,
-      }
-    ),
-  }
-  next()
-})
-
 module.exports.searchForProductRequests = routeTryCatcher(async function (
   req,
   res,
