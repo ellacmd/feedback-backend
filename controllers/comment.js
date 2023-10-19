@@ -1,78 +1,77 @@
 const Comment = require("../models/comment")
 const { routeTryCatcher } = require("../utils/controller.js")
-const { signJwt } = require("../utils/security.js")
 
-async function createUser(userData = {}) {
-  const newUser = new User({ ...userData, role: "user" })
-  return await newUser.save()
+async function createNewComment(CommentData = {}) {
+  const newComment = new Comment({ ...CommentData })
+  return await newComment.save()
 }
 
-module.exports.checkIfIsOwnerAndUserOfIdParam = routeTryCatcher(function (
+module.exports.getSingleComment = routeTryCatcher(async function (
   req,
   res,
   next
 ) {
-  if (req.user?._id?.toString() !== req.params.id) return next("Not Allowed!!")
-  next()
-})
-module.exports.getUser = routeTryCatcher(async function (req, res, next) {
   req.statusCode = 200
   req.response = {
-    user: await User.findById(req.params.id),
+    comment: await Comment.findById(req.params.id),
   }
   next()
 })
 
-module.exports.deleteUser = routeTryCatcher(async function (req, res, next) {
+module.exports.deleteSingleComment = routeTryCatcher(async function (
+  req,
+  res,
+  next
+) {
   req.statusCode = 204
   req.response = {
-    user: await User.findByIdAndDelete(req.params.id),
+    comment: await Comment.findByIdAndDelete(req.params.id),
   }
   return next()
 })
 
-module.exports.updateUser = routeTryCatcher(async function (req, res, next) {
+module.exports.updateSingleComment = routeTryCatcher(async function (
+  req,
+  res,
+  next
+) {
   req.statusCode = 200
-  const { name, image } = req.body
+  const { content } = req.body
   req.response = {
-    user: await User.findByIdAndUpdate(
-      req.params.id,
+    comment: await Comment.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
       {
-        name: name || req.user.name,
-        image: image || req.user.image,
+        content,
       },
-      { new: true, select: "-password" }
+      { new: true }
     ),
   }
   return next()
 })
 
-module.exports.signupUser = routeTryCatcher(async function (req, res, next) {
-  const user = await createUser(req.body)
+module.exports.createComment = routeTryCatcher(async function (req, res, next) {
+  const comment = await createNewComment({ ...req.body, comment: req.user._id })
   req.statusCode = 201
   req.response = {
-    user,
-    message: "Profile created successfully!",
+    comment,
+    message: "Comment added!",
   }
   return next()
 })
 
-module.exports.loginUser = routeTryCatcher(async function (req, res, next) {
-  req.statusCode = 400
-  req.response = { message: "All fields are required!" }
-  if (!req.body.username || !req.body.password) return next()
-
-  req.response = { message: "Invalid credentials!" }
-  const user = await User.findOne({ username: req.body.username })
-  if (!user) return next()
-  if (!(await user.comparePassword(req.body.password))) return next()
-
-  const token = signJwt({ _id: user._id })
+module.exports.searchForComments = routeTryCatcher(async function (
+  req,
+  res,
+  next
+) {
+  const commentQueryBuilder = new QueryBuilder(Comment, req.query)
+  const comments = await commentQueryBuilder.find()
   req.statusCode = 200
   req.response = {
-    user,
-    token,
-    message: "Logged in!",
+    comments,
+    count: comments.length,
+    hasMore: comments.length >= commentQueryBuilder.limit,
+    page: commentQueryBuilder.page,
   }
   next()
 })
