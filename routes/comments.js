@@ -7,7 +7,7 @@ const {
   updateSingleComment,
   deleteSingleComment,
   searchForComments,
-} = require("../controllers/comments")
+} = require("../controllers/comment")
 const { authorize } = require("../middleware/auth")
 
 router.get("/", searchForComments, sendResponse)
