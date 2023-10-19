@@ -21,10 +21,10 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")))
 
-app.use("/", indexRouter)
-app.use("/users", usersRouter)
-app.use("/product-requests", productRequestsRouter)
-app.use("/comments", commentsRouter)
+app.use("/api/v1", indexRouter)
+app.use("/api/v1/users", usersRouter)
+app.use("/api/v1/product-requests", productRequestsRouter)
+app.use("/api/v1/comments", commentsRouter)
 
 app.use(function (req, res, next) {
   next(createError(404))
