@@ -1,7 +1,7 @@
 const { Server } = require("socket.io")
 const productRequestsHandler = require("./productRequests")
 const commentsHandler = require("./comments")
-const replyHandler = require("./reply")
+const replyHandler = require("./replies")
 const authorize = require("./auth")
 
 module.exports = function (server) {
@@ -18,7 +18,7 @@ module.exports = function (server) {
     next()
   })
 
-  const replyIo = socketIo.of("/api/v1/reply")
+  const replyIo = socketIo.of("/api/v1/replies")
   replyIo.use(authorize)
   replyIo.use((socket, next) => {
     handleSocketEvents(replyHandler, socket, replyIo, next)
