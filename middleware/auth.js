@@ -11,13 +11,3 @@ module.exports.authorize = routeTryCatcher(async function (req, res, next) {
   req.user = user
   next()
 })
-
-module.exports.authorizeAdmin = routeTryCatcher(async function (
-  req,
-  res,
-  next
-) {
-  if (req.user?.role !== "admin")
-    return next(new CustomError("Not Allowed", 403))
-  next()
-})
