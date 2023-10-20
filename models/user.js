@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
       virtuals: true,
     },
     collation: { locale: "en", strength: 2 },
+    timestamps: true,
   }
 )
 

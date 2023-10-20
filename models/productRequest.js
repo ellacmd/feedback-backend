@@ -23,6 +23,7 @@ const productRequestSchema = new mongoose.Schema(
       maxLength: 150,
       default: "",
     },
+  
   },
   {
     toJSON: {
@@ -32,11 +33,17 @@ const productRequestSchema = new mongoose.Schema(
       virtuals: true,
     },
     collation: { locale: "en", strength: 2 },
+    timestamps: true
   }
 )
-
+productRequestSchema.virtual("comments")
 productRequestSchema.post(/^findOne/, async function (doc, next) {
-  if (doc) doc.comments = await Comment.find({ productRequest: this._id })
+  if (doc !== null)
+    doc.comments = await Comment.find({ productRequest: doc._id })
+      .sort({
+        createdAt: -1,
+      })
+      .limit(1)
   next()
 })
 
