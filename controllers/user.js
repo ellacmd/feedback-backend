@@ -1,6 +1,7 @@
 const User = require("../models/user")
 const { routeTryCatcher, QueryBuilder } = require("../utils/controller.js")
 const { signJwt } = require("../utils/security.js")
+const CustomError = require("../utils/error")
 
 async function createUser(userData = {}) {
   const newUser = new User({ ...userData, role: "user" })
@@ -12,7 +13,8 @@ module.exports.checkIfIsOwnerAndUserOfIdParam = routeTryCatcher(function (
   res,
   next
 ) {
-  if (req.user?._id?.toString() !== req.params.id) return next("Not Allowed!!")
+  if (req.user?._id?.toString() !== req.params.id)
+    return next(new CustomError("Not Allowed!!", 403))
   next()
 })
 module.exports.getUser = routeTryCatcher(async function (req, res, next) {
@@ -33,13 +35,15 @@ module.exports.deleteUser = routeTryCatcher(async function (req, res, next) {
 
 module.exports.updateUser = routeTryCatcher(async function (req, res, next) {
   req.statusCode = 200
-  const { name, image } = req.body
+  const { name, image, firstname, lastname } = req.body
   req.response = {
     user: await User.findByIdAndUpdate(
       req.params.id,
       {
         name: name || req.user.name,
         image: image || req.user.image,
+        firstname: firstname || req.user.firstname,
+        lastname: lastname || req.user.lastname,
       },
       { new: true, select: "-password" }
     ),
