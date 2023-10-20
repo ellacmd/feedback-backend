@@ -1,13 +1,14 @@
 const ProductRequest = require("../models/productRequest")
+const Comment = require("../models/comment")
 const { routeTryCatcher, QueryBuilder } = require("../utils/controller.js")
 
 async function createNewProductRequest(productRequestData = {}) {
   const newProdRequest = new ProductRequest(productRequestData)
   return await newProdRequest.save()
 }
-async function updateProductRequest(id, update = {}) {
-  return ProductRequest.findByIdAndUpdate(
-    id,
+async function updateProductRequest(filter, update = {}) {
+  return ProductRequest.findOneAndUpdate(
+    filter,
     {
       ...update,
     },
@@ -26,7 +27,10 @@ module.exports.newProductRequest = routeTryCatcher(async function (
 ) {
   req.statusCode = 201
   req.response = {
-    productRequest: await createNewProductRequest(req.body),
+    productRequest: await createNewProductRequest({
+      ...req.body,
+      user: req.user._id,
+    }),
     message: "Product Request created!",
   }
   next()
@@ -51,7 +55,7 @@ module.exports.updateSingleProductRequest = routeTryCatcher(async function (
 ) {
   req.statusCode = 200
   req.response = {
-    productRequest: await updateProductRequest(req.params.id, req.body),
+    productRequest: await updateProductRequest({_id: req.params.id, user: req.user._id}, req.body),
   }
   next()
 })
@@ -61,10 +65,12 @@ module.exports.deleteSingleProductRequest = routeTryCatcher(async function (
   res,
   next
 ) {
+  await ProductRequest.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  })
+  await Comment.deleteMany({ productRequest: req.params.id })
   req.statusCode = 204
-  req.response = {
-    productRequest: await ProductRequest.findByIdAndDelete(req.params.id),
-  }
   next()
 })
 
