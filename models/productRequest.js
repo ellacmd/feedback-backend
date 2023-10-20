@@ -46,7 +46,6 @@ productRequestSchema.post(/^findOne/, async function (doc, next) {
     doc.comments = await Comment.find({ productRequest: doc._id })
       .sort({
         createdAt: -1,
-
       })
       .limit(50)
   next()

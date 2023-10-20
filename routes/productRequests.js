@@ -8,12 +8,12 @@ const {
   deleteSingleProductRequest,
   searchForProductRequests,
 } = require("../controllers/productRequest")
-const { authorize, authorizeAdmin } = require("../middleware/auth")
+const { authorize } = require("../middleware/auth")
 
 router.get("/", searchForProductRequests, sendResponse)
 router.get("/:id", getSingleProductRequest, sendResponse)
 
-router.use(authorize, authorizeAdmin)
+router.use(authorize)
 router.post("/", newProductRequest, sendResponse)
 router.put("/:id", updateSingleProductRequest, sendResponse)
 router.delete("/:id", deleteSingleProductRequest, sendResponse)
