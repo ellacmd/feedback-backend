@@ -10,6 +10,8 @@ This is an Express application with a MongoDB datastore.
 - **./models** contains models (Mongoose), controllers, and repositories
 - **./routes** contains api routes (Express)
 
+* .env.sample is a boilerplate of the required .env file
+
 ## **II. Branches**
 * `main` - Code that is currently running in production
 
@@ -17,7 +19,7 @@ This is an Express application with a MongoDB datastore.
 
 ### Prerequisites:
 * Node.js (make sure to install node modules for each application)
-* mongodb-community\* (optional; Only required for development)
+* mongodb-community\* (required when process.env.NODE_ENV === dev)
 
 1. Install all Node dependencies (Assuming Node is already installed on the machine)
 ```bash
