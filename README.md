@@ -41,3 +41,8 @@ npm run <NODE_SCRIPT_NAME_HERE_DEPENDING_ON_ENVIRONMENT>  # i.e. npm run dev or 
 ```
 
 These scripts can be executed with `npm run <script_name>` _ex. `npm run dev`
+
+
+
+### API With Postman
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://null.postman.co/collection/19816123-6820e355-3c03-4862-8fb5-468751f00600?source=rip_markdown)
