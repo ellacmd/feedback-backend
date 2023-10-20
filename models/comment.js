@@ -19,9 +19,20 @@ const commentSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
     },
-    timestamps: true
+    timestamps: true,
   }
 )
+
+commentSchema.virtual("replies")
+commentSchema.post(/^find/, async function (doc, next) {
+  if (doc !== null)
+    doc.replies = await Reply.find({ productRequest: doc._id })
+      .sort({
+        createdAt: -1,
+      })
+      .limit(10)
+  next()
+})
 
 commentSchema.pre(/^find/, async function (next) {
   if (this.options._recursed) {
