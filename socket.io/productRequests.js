@@ -7,10 +7,13 @@ async function downvote(data, next, socket, io) {
     let productRequest
     if (requestData.productRequest) {
       productRequest = await ProductRequest.findById(requestData.productRequest)
-      productRequest = await update(requestData.productRequest, {
-        upvotes:
-          productRequest.upvotes - 1 >= 0 ? productRequest.upvotes - 1 : 0,
-      })
+      productRequest = await update(
+        { _id: requestData.productRequest },
+        {
+          upvotes:
+            productRequest.upvotes - 1 >= 0 ? productRequest.upvotes - 1 : 0,
+        }
+      )
       return io.emit("downvote", { done: true, productRequest })
     }
     socket.emit("downvote", { done: false, message: "Invalid request!" })
