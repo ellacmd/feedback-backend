@@ -11,8 +11,8 @@ const {
 const { authorize } = require("../middleware/auth")
 
 router.get("/", searchForComments, sendResponse)
-router.use(authorize)
 router.get("/:id", getSingleComment, sendResponse)
+router.use(authorize)
 router.post("/", createComment, sendResponse)
 router.put("/:id", updateSingleComment, sendResponse)
 router.delete("/:id", deleteSingleComment, sendResponse)
