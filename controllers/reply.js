@@ -70,7 +70,7 @@ module.exports.searchForReplys = routeTryCatcher(async function (
   const replies = await replyQueryBuilder.find()
   req.statusCode = 200
   req.response = {
-    replys,
+    replies,
     count: replies.length,
     hasMore: replies.length >= replyQueryBuilder.limit,
     page: replyQueryBuilder.page,
