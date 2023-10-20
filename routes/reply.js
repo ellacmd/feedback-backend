@@ -11,10 +11,10 @@ const {
 const { authorize } = require("../middleware/auth")
 
 router.get("/", searchForReplys, sendResponse)
-router.get("/:id", getSingleReply, sendResponse)
+router.get("/:comment/:id", getSingleReply, sendResponse)
 router.use(authorize)
-router.post("/", createReply, sendResponse)
-router.put("/:id", updateSingleReply, sendResponse)
-router.delete("/:id", deleteSingleReply, sendResponse)
+router.post("/:comment", createReply, sendResponse)
+router.put("/:comment/:id", updateSingleReply, sendResponse)
+router.delete("/:comment/:id", deleteSingleReply, sendResponse)
 
 module.exports = router

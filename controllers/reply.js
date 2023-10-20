@@ -41,7 +41,7 @@ module.exports.updateSingleReply = routeTryCatcher(async function (
   const { content } = req.body
   req.response = {
     reply: await Reply.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
+      { _id: req.params.id, user: req.user._id, comment: req.params.comment },
       {
         content,
       },
@@ -52,7 +52,11 @@ module.exports.updateSingleReply = routeTryCatcher(async function (
 })
 
 module.exports.createReply = routeTryCatcher(async function (req, res, next) {
-  const reply = await createNewReply({ ...req.body, user: req.user._id })
+  const reply = await createNewReply({
+    comment: req.params.comment,
+    content: req.body.content,
+    user: req.user._id,
+  })
   req.statusCode = 201
   req.response = {
     reply,
