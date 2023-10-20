@@ -7,6 +7,7 @@ require("dotenv").config()
 var indexRouter = require("./routes/index")
 var usersRouter = require("./routes/users")
 var commentsRouter = require("./routes/comments")
+var repliesRouter = require("./routes/replies")
 var productRequestsRouter = require("./routes/productRequests")
 const CustomError = require("./utils/error")
 const globalErrorHandler = require("./middleware/error")
@@ -23,6 +24,7 @@ app.use("/api/v1", indexRouter)
 app.use("/api/v1/users", usersRouter)
 app.use("/api/v1/product-requests", productRequestsRouter)
 app.use("/api/v1/comments", commentsRouter)
+app.use("/api/v1/replies", repliesRouter)
 
 app.all("*", (req, _, next) => {
   next(
