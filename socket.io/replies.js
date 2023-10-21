@@ -8,6 +8,7 @@ async function reply(data, next, socket, io) {
         user: socket.user._id,
         content: requestData.content,
         comment: requestData.comment,
+        replyingTo: requestData.replyingTo,
       })
       return io.emit("reply", { done: true, reply })
     }
@@ -27,7 +28,7 @@ async function edit(data, next, socket, io) {
         user: socket.user._id,
         content: requestData.content,
         comment: requestData.comment,
-      })
+      }, { content: requestData.content })
       return io.emit("edit", { done: true, reply })
     }
     socket.emit("edit", { done: false, message: "Invalid request!" })

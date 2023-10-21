@@ -13,6 +13,11 @@ const replySchema = new mongoose.Schema(
       ref: "Comment",
       required: [true, "Comment Id is required!"],
     },
+    replyingTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, 'Required field "replyingTo"'],
+    },
   },
   {
     collation: { locale: "en", strength: 2 },
