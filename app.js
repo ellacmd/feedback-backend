@@ -11,7 +11,7 @@ var repliesRouter = require("./routes/replies")
 var productRequestsRouter = require("./routes/productRequests")
 const CustomError = require("./utils/error")
 const globalErrorHandler = require("./middleware/error")
-
+const cors = require("cors")
 var app = express()
 
 app.use(logger("dev"))
@@ -19,7 +19,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")))
-
+app.use(cors({ origin: "*", credentials: true }))
 app.use("/api/v1", indexRouter)
 app.use("/api/v1/users", usersRouter)
 app.use("/api/v1/product-requests", productRequestsRouter)
