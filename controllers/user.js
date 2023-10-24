@@ -56,6 +56,7 @@ module.exports.signupUser = routeTryCatcher(async function (req, res, next) {
   req.statusCode = 201
   req.response = {
     user,
+    token: signJwt({ _id: user._id }),
     message: "Profile created successfully!",
   }
   return next()
