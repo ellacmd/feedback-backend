@@ -6,24 +6,26 @@ const throwDevError = (err, res) => {
     message: err.message,
     stack: err.stack,
     error: err,
+    statusCode: err.statusCode,
   })
 }
 const throwProdError = (err, res) => {
-  console.log(err)
+  console.error(err)
   err.isOperational
     ? res.status(err.statusCode).json({
         status: err.status,
         message: err.message,
+        statusCode: err.statusCode,
       })
     : res.status(500).json({
         status: "failed",
         message: "Something went wrong!",
+        statusCode: 500,
       })
 }
 const handleDuplicateKeyError = (err) => {
   const key = Object.keys(err.keyValue)[0]
-  const value = err.keyValue[key]
-  const message = `Duplicate error: The ${key}, ${value} already exists.`
+  const message = `Duplicate error: The ${key} is already taken. Try another ${key}`
   return new CustomError(message, 400)
 }
 const handleCastError = (err) => {
@@ -41,8 +43,7 @@ const handleValidationError = (err) => {
     .join(", ")
   return new CustomError(message, 400)
 }
-module.exports = (err, req, res) => {
-  console.log(err)
+module.exports = (err, req, res, next) => {
   err.status = err.status || "error"
   err.statusCode = err.statusCode || 500
   if (process.env.NODE_ENV === "dev") {
