@@ -100,6 +100,7 @@ module.exports.searchForProductRequests = routeTryCatcher(async function (
 ) {
   const productRequestQueryBuilder = new QueryBuilder(ProductRequest, req.query)
   const productRequests = await productRequestQueryBuilder.find()
+  await Promise.all(productRequests.map((async prodReq => await prodReq.getCommentCount())))
   req.statusCode = 200
   req.response = {
     productRequests,
