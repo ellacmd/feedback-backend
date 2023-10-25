@@ -7,6 +7,7 @@ async function createNewProductRequest(productRequestData = {}) {
   return await newProdRequest.save()
 }
 async function updateProductRequest(filter, update = {}) {
+  console.log('res>>', filter)
   return ProductRequest.findOneAndUpdate(
     filter,
     {
@@ -45,6 +46,7 @@ module.exports.getSingleProductRequest = routeTryCatcher(async function (
   req.response = {
     productRequest: await ProductRequest.findById(req.params.id),
   }
+
   next()
 })
 
@@ -86,7 +88,7 @@ module.exports.searchForProductRequests = routeTryCatcher(async function (
     productRequests,
     count: productRequests.length,
     hasMore: productRequests.length >= productRequestQueryBuilder.limit,
-    page: productRequestQueryBuilder.page,
+    page: productRequestQueryBuilder.page
   }
   next()
 })

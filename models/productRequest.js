@@ -27,7 +27,7 @@ const productRequestSchema = new mongoose.Schema(
       type: String,
       maxLength: 150,
       default: "",
-    },
+    }
   },
   {
     toJSON: {

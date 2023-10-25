@@ -13,7 +13,7 @@ const {
 const { authorize } = require("../middleware/auth")
 
 router.post("/", signupUser, sendResponse)
-router.get("/", loginUser, sendResponse)
+router.post("/login", loginUser, sendResponse)
 router.get("/all", searchForUsers, sendResponse)
 
 router.use(authorize)
