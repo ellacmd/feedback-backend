@@ -1,6 +1,7 @@
 const ProductRequest = require("../models/productRequest")
 const Comment = require("../models/comment")
 const { routeTryCatcher, QueryBuilder } = require("../utils/controller.js")
+const CustomError = require("../utils/error")
 
 async function createNewProductRequest(productRequestData = {}) {
   const newProdRequest = new ProductRequest(productRequestData)
@@ -37,6 +38,21 @@ module.exports.newProductRequest = routeTryCatcher(async function (
   next()
 })
 
+module.exports.checkDocumentBelongsToUser = routeTryCatcher(async function (
+  req,
+  res,
+  next
+) {
+  const productRequest = await ProductRequest.findById(req.params.id)
+  if (
+    !productRequest ||
+    req.user?._id?.toString() !== productRequest.user?._id?.toString()
+  )
+    return next(new CustomError("Not Allowed!!", 403))
+  req.productRequest = productRequest
+  next()
+})
+
 module.exports.getSingleProductRequest = routeTryCatcher(async function (
   req,
   res,
@@ -57,7 +73,10 @@ module.exports.updateSingleProductRequest = routeTryCatcher(async function (
 ) {
   req.statusCode = 200
   req.response = {
-    productRequest: await updateProductRequest({_id: req.params.id, user: req.user._id}, req.body),
+    productRequest: await updateProductRequest(
+      { _id: req.params.id, user: req.user._id },
+      req.body
+    ),
   }
   next()
 })
