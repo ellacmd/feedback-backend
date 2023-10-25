@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const Reply = require("./reply")
 
 const commentSchema = new mongoose.Schema(
   {

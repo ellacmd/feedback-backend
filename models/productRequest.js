@@ -41,13 +41,17 @@ const productRequestSchema = new mongoose.Schema(
   }
 )
 productRequestSchema.virtual("comments")
+productRequestSchema.virtual("commentCount")
 productRequestSchema.post(/^findOne/, async function (doc, next) {
-  if (doc !== null)
-    doc.comments = await Comment.find({ productRequest: doc._id })
+  if (doc !== null) {
+    const comments = await Comment.find({ productRequest: doc._id })
       .sort({
         createdAt: -1,
       })
       .limit(50)
+    doc.comments = comments
+    doc.commentCount = comments.length
+  }
   next()
 })
 
