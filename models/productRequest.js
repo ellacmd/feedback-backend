@@ -44,13 +44,15 @@ productRequestSchema.virtual("comments")
 productRequestSchema.virtual("commentCount")
 productRequestSchema.post(/^findOne/, async function (doc, next) {
   if (doc !== null) {
-    const comments = await Comment.find({ productRequest: doc._id })
+    const allComments = await Comment.aggregate().match({productRequest : doc._id})
+    const comments = await Comment.aggregate()
+      .match({ productRequest: doc._id })
       .sort({
         createdAt: -1,
       })
       .limit(50)
     doc.comments = comments
-    doc.commentCount = comments.length
+    doc.commentCount = allComments.length
   }
   next()
 })
