@@ -9,11 +9,10 @@ const userSchema = new mongoose.Schema(
     },
     firstname: {
       type: String,
-      required: [true, "Please provide your first name!"],
     },
     lastname: {
       type: String,
-      required: [true, "Please provide your last name!"],
+  
     },
     username: {
       type: String,
