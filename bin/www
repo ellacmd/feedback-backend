@@ -14,7 +14,7 @@ socketServer(server)
 mongoose.connect(
   process.env.NODE_ENV === "dev"
     ? "mongodb://127.0.0.1:27017/prod-feedback"
-    : `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.whackgm.mongodb.net/product-feedback?retryWrites=true&w=majority`
+    : `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.keekg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 )
 
 server.listen(port)
