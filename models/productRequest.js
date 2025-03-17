@@ -50,22 +50,131 @@ productRequestSchema.methods.getCommentCount = async function () {
 
 productRequestSchema.post(/^findOne/, async function (doc, next) {
     if (doc !== null) {
-        doc.comments = await Comment.aggregate()
-            .match({ productRequest: doc._id })
-            .lookup({
-                from: 'users',
-                localField: 'user',
-                foreignField: '_id',
-                as: 'user',
-            })
-            .unwind({
-                path: '$user',
-            })
-            .sort({
-                createdAt: -1,
-            })
-            .limit(50);
-        doc.commentCount = await Comment.count({ productRequest: this._id });
+        const comments = await Comment.aggregate([
+            {
+                $match: {
+                    productRequest: doc._id,
+                    replyingTo: null,
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                },
+            },
+            {
+                $unwind: {
+                    path: '$user',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'comments',
+                    let: { commentId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ['$replyingTo', '$$commentId'] },
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'user',
+                                foreignField: '_id',
+                                as: 'user',
+                            },
+                        },
+                        {
+                            $unwind: '$user',
+                        },
+                        {
+                            $lookup: {
+                                from: 'comments',
+                                localField: 'replyingTo',
+                                foreignField: '_id',
+                                as: 'replyingToComment',
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: '$replyingToComment',
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'replyingToComment.user',
+                                foreignField: '_id',
+                                as: 'replyingToUser',
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: '$replyingToUser',
+                                preserveNullAndEmptyArrays: true,
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                content: 1,
+                                createdAt: 1,
+                                updatedAt: 1,
+                                replyingTo: 1,
+                                replyingToUsername: '$replyingToUser.username',
+                                user: {
+                                    _id: '$user._id',
+                                    image: '$user.image',
+                                    firstname: '$user.firstname',
+                                    lastname: '$user.lastname',
+                                    username: '$user.username',
+                                    role: '$user.role',
+                                    createdAt: '$user.createdAt',
+                                    updatedAt: '$user.updatedAt',
+                                    __v: '$user.__v',
+                                },
+                            },
+                        },
+                    ],
+                    as: 'replies',
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    content: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    user: {
+                        _id: '$user._id',
+                        image: '$user.image',
+                        firstname: '$user.firstname',
+                        lastname: '$user.lastname',
+                        username: '$user.username',
+                        role: '$user.role',
+                        createdAt: '$user.createdAt',
+                        updatedAt: '$user.updatedAt',
+                        __v: '$user.__v',
+                    },
+                    replies: 1,
+                },
+            },
+            {
+                $sort: {
+                    createdAt: -1,
+                },
+            },
+        ]);
+
+        doc.comments = comments;
+        doc.commentCount = await Comment.count({
+            productRequest: doc._id,
+        });
     }
     next();
 });
