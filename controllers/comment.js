@@ -52,7 +52,8 @@ module.exports.updateSingleComment = routeTryCatcher(async function (
 })
 
 module.exports.createComment = routeTryCatcher(async function (req, res, next) {
-  const comment = await createNewComment({ ...req.body, user: req.user._id })
+  const { content, productRequest } = req.body
+  const comment = await createNewComment({ content, productRequest, user: req.user._id })
   req.statusCode = 201
   req.response = {
     comment,
