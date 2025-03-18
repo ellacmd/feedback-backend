@@ -19,6 +19,10 @@ const commentSchema = new mongoose.Schema(
             ref: 'Comment',
             default: null,
         },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
     },
     {
         collation: { locale: 'en', strength: 2 },
