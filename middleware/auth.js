@@ -1,13 +1,23 @@
-const { routeTryCatcher } = require("../utils/controller.js")
-const { validateToken } = require("../utils/security.js")
-const CustomError = require("../utils/error")
+const jwt = require('jsonwebtoken');
 
-module.exports.authorize = routeTryCatcher(async function (req, res, next) {
-  const token =
-    req.headers["authorization"]?.split(" ")?.[1] || req.headers.access_token
-  if (!token) return next(new CustomError("Not Allowed!", 403))
-  const user = await validateToken(token)
-  if (!user) return next(new CustomError("Not Allowed!", 403))
-  req.user = user
-  next()
-})
+exports.authorize = (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(401).json({
+                status: 'fail',
+                message: 'No authentication token, access denied',
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({
+            status: 'fail',
+            message: 'Invalid token',
+        });
+    }
+};

@@ -17,7 +17,10 @@ const productRequestSchema = new mongoose.Schema(
             enum: ['enhancement', 'feature', 'bug', 'ui', 'ux'],
             required: [true, 'A product request must have a category'],
         },
-        upvotes: { type: Number, default: 0 }, // sockets
+        upvotes: {
+            type: Number,
+            default: 0,
+        },
         status: {
             type: String,
             enum: ['suggestion', 'planned', 'in-progress', 'live'],
@@ -28,6 +31,12 @@ const productRequestSchema = new mongoose.Schema(
             maxLength: 150,
             default: '',
         },
+        upvotedBy: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
     },
     {
         toJSON: {
@@ -176,6 +185,13 @@ productRequestSchema.post(/^findOne/, async function (doc, next) {
             productRequest: doc._id,
         });
     }
+    next();
+});
+
+// Add a pre-save hook to ensure consistency
+productRequestSchema.pre('save', function (next) {
+    // Ensure upvotes matches upvotedBy length
+    this.upvotes = this.upvotedBy.length;
     next();
 });
 

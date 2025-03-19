@@ -118,3 +118,66 @@ module.exports.searchForProductRequests = routeTryCatcher(async function (
     };
     next();
 });
+
+module.exports.toggleUpvote = routeTryCatcher(async (req, res, next) => {
+    const productRequestId = req.params.id;
+    const userId = req.user._id;
+
+    // 1. Get the current document state
+    let productRequest = await ProductRequest.findById(productRequestId);
+    console.log('1. Initial state:', {
+        id: productRequestId,
+        userId: userId,
+        currentUpvotes: productRequest.upvotes,
+        currentUpvotedBy: productRequest.upvotedBy,
+    });
+
+    if (!productRequest) {
+        req.statusCode = 404;
+        req.response = {
+            status: 'fail',
+            message: 'Product request not found',
+        };
+        return next();
+    }
+
+    // 2. Check if user has already upvoted
+    const hasUpvoted = productRequest.upvotedBy.includes(userId);
+    console.log('2. Has user upvoted:', hasUpvoted);
+
+    // 3. Update the arrays directly
+    if (!hasUpvoted) {
+        // Add the upvote
+        productRequest.upvotedBy = [...productRequest.upvotedBy, userId];
+    } else {
+        // Remove the upvote
+        productRequest.upvotedBy = productRequest.upvotedBy.filter(
+            (id) => id.toString() !== userId.toString()
+        );
+    }
+
+    // 4. Set the upvotes count
+    productRequest.upvotes = productRequest.upvotedBy.length;
+
+    console.log('3. Before save:', {
+        upvotes: productRequest.upvotes,
+        upvotedBy: productRequest.upvotedBy,
+    });
+
+    // 5. Save the changes
+    await productRequest.save();
+
+    // 6. Get fresh copy to verify
+    productRequest = await ProductRequest.findById(productRequestId);
+    console.log('4. After save:', {
+        upvotes: productRequest.upvotes,
+        upvotedBy: productRequest.upvotedBy,
+    });
+
+    req.statusCode = 200;
+    req.response = {
+        status: 'success',
+        productRequest,
+    };
+    next();
+});
