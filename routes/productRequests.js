@@ -22,7 +22,7 @@ router.post('/', newProductRequest, sendResponse);
 router.patch('/:id/upvote', toggleUpvote, sendResponse);
 router.put(
     '/:id',
-    checkDocumentBelongsToUser,
+
     updateSingleProductRequest,
     sendResponse
 );
