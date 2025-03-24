@@ -8,7 +8,6 @@ async function createNewProductRequest(productRequestData = {}) {
     return await newProdRequest.save();
 }
 async function updateProductRequest(filter, update = {}) {
-  
     return ProductRequest.findOneAndUpdate(
         filter,
         {
@@ -235,7 +234,7 @@ module.exports.toggleUpvote = routeTryCatcher(async (req, res, next) => {
     const userId = req.user._id;
 
     let productRequest = await ProductRequest.findById(productRequestId);
-  
+
     if (!productRequest) {
         req.statusCode = 404;
         req.response = {
@@ -246,29 +245,20 @@ module.exports.toggleUpvote = routeTryCatcher(async (req, res, next) => {
     }
 
     const hasUpvoted = productRequest.upvotedBy.includes(userId);
-    
-  
+
     if (!hasUpvoted) {
-   
         productRequest.upvotedBy = [...productRequest.upvotedBy, userId];
     } else {
-    
         productRequest.upvotedBy = productRequest.upvotedBy.filter(
             (id) => id.toString() !== userId.toString()
         );
     }
 
-
     productRequest.upvotes = productRequest.upvotedBy.length;
-
-
-
 
     await productRequest.save();
 
- 
     productRequest = await ProductRequest.findById(productRequestId);
-   
 
     req.statusCode = 200;
     req.response = {

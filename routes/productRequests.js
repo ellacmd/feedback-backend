@@ -33,7 +33,6 @@ router.delete(
     sendResponse
 );
 
-
 router.post('/:id/comments', createComment, sendResponse);
 
 module.exports = router;
