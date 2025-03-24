@@ -8,7 +8,7 @@ async function createNewProductRequest(productRequestData = {}) {
     return await newProdRequest.save();
 }
 async function updateProductRequest(filter, update = {}) {
-    console.log('res>>', filter);
+  
     return ProductRequest.findOneAndUpdate(
         filter,
         {
@@ -59,6 +59,117 @@ module.exports.getSingleProductRequest = routeTryCatcher(async function (
     next
 ) {
     const productRequest = await ProductRequest.findById(req.params.id);
+
+    const comments = await Comment.aggregate([
+        {
+            $match: {
+                productRequest: productRequest._id,
+                replyingTo: null,
+            },
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+            },
+        },
+        { $unwind: '$user' },
+        {
+            $lookup: {
+                from: 'comments',
+                let: { commentId: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ['$replyingTo', '$$commentId'] },
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user',
+                        },
+                    },
+                    { $unwind: '$user' },
+                    {
+                        $lookup: {
+                            from: 'comments',
+                            let: { parentId: '$replyingTo' },
+                            pipeline: [
+                                {
+                                    $match: {
+                                        $expr: { $eq: ['$_id', '$$parentId'] },
+                                    },
+                                },
+                                {
+                                    $lookup: {
+                                        from: 'users',
+                                        localField: 'user',
+                                        foreignField: '_id',
+                                        as: 'parentUser',
+                                    },
+                                },
+                                { $unwind: '$parentUser' },
+                            ],
+                            as: 'parentComment',
+                        },
+                    },
+                    { $unwind: '$parentComment' },
+                    {
+                        $project: {
+                            _id: 1,
+                            content: 1,
+                            createdAt: 1,
+                            replyingTo: 1,
+                            replyingToUsername: {
+                                $cond: {
+                                    if: { $ne: ['$replyingToUsername', null] },
+                                    then: '$replyingToUsername',
+                                    else: '$parentComment.parentUser.username',
+                                },
+                            },
+                            user: {
+                                _id: '$user._id',
+                                username: '$user.username',
+                                firstname: '$user.firstname',
+                                lastname: '$user.lastname',
+                                image: '$user.image',
+                                role: '$user.role',
+                            },
+                        },
+                    },
+                ],
+                as: 'replies',
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                content: 1,
+                createdAt: 1,
+                user: {
+                    _id: '$user._id',
+                    username: '$user.username',
+                    firstname: '$user.firstname',
+                    lastname: '$user.lastname',
+                    image: '$user.image',
+                    role: '$user.role',
+                },
+                replies: 1,
+            },
+        },
+        { $sort: { createdAt: -1 } },
+    ]);
+
+    productRequest.comments = comments;
+    productRequest.commentCount = await Comment.countDocuments({
+        productRequest: productRequest._id,
+    });
+
     req.statusCode = 200;
     req.response = {
         productRequest,
@@ -123,15 +234,8 @@ module.exports.toggleUpvote = routeTryCatcher(async (req, res, next) => {
     const productRequestId = req.params.id;
     const userId = req.user._id;
 
-    // 1. Get the current document state
     let productRequest = await ProductRequest.findById(productRequestId);
-    console.log('1. Initial state:', {
-        id: productRequestId,
-        userId: userId,
-        currentUpvotes: productRequest.upvotes,
-        currentUpvotedBy: productRequest.upvotedBy,
-    });
-
+  
     if (!productRequest) {
         req.statusCode = 404;
         req.response = {
@@ -141,38 +245,30 @@ module.exports.toggleUpvote = routeTryCatcher(async (req, res, next) => {
         return next();
     }
 
-    // 2. Check if user has already upvoted
     const hasUpvoted = productRequest.upvotedBy.includes(userId);
-    console.log('2. Has user upvoted:', hasUpvoted);
-
-    // 3. Update the arrays directly
+    
+  
     if (!hasUpvoted) {
-        // Add the upvote
+   
         productRequest.upvotedBy = [...productRequest.upvotedBy, userId];
     } else {
-        // Remove the upvote
+    
         productRequest.upvotedBy = productRequest.upvotedBy.filter(
             (id) => id.toString() !== userId.toString()
         );
     }
 
-    // 4. Set the upvotes count
+
     productRequest.upvotes = productRequest.upvotedBy.length;
 
-    console.log('3. Before save:', {
-        upvotes: productRequest.upvotes,
-        upvotedBy: productRequest.upvotedBy,
-    });
 
-    // 5. Save the changes
+
+
     await productRequest.save();
 
-    // 6. Get fresh copy to verify
+ 
     productRequest = await ProductRequest.findById(productRequestId);
-    console.log('4. After save:', {
-        upvotes: productRequest.upvotes,
-        upvotedBy: productRequest.upvotedBy,
-    });
+   
 
     req.statusCode = 200;
     req.response = {

@@ -60,39 +60,31 @@ module.exports.updateSingleComment = routeTryCatcher(async function (
 });
 
 module.exports.createComment = routeTryCatcher(async function (req, res, next) {
-    const { content, productRequest, replyingTo } = req.body;
+    const { content, replyingTo, replyingToUsername } = req.body;
+    const productRequestId = req.params.id;
 
-    // First verify that the parent comment exists and belongs to this product request
-    if (replyingTo && mongoose.Types.ObjectId.isValid(replyingTo)) {
-        const parentComment = await Comment.findOne({
-            _id: replyingTo,
-            productRequest: productRequest,
-        });
-
-        if (!parentComment) {
-            throw new Error('Parent comment not found in this product request');
-        }
-    }
-
-    let comment = await createNewComment({
+    const comment = await Comment.create({
         content,
-        productRequest,
         user: req.user._id,
-        replyingTo:
-            replyingTo && mongoose.Types.ObjectId.isValid(replyingTo)
-                ? replyingTo
-                : null,
+        productRequest: productRequestId,
+        replyingTo: replyingTo || null,
+        replyingToUsername: replyingToUsername || null, 
     });
 
-    // Let the model middleware handle population
-    comment = await Comment.findById(comment._id);
+
+    const populatedComment = await Comment.findById(comment._id).populate(
+        'user',
+        'firstname lastname username image role'
+    );
 
     req.statusCode = 201;
     req.response = {
-        comment,
-        message: 'Comment added!',
+        status: 'success',
+        data: {
+            comment: populatedComment,
+        },
     };
-    return next();
+    next();
 });
 
 module.exports.searchForComments = routeTryCatcher(async function (

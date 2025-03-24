@@ -3,7 +3,11 @@ const Reply = require('./reply');
 
 const commentSchema = new mongoose.Schema(
     {
-        content: { type: String, maxLength: 250 },
+        content: {
+            type: String,
+            maxLength: 250,
+            required: [true, 'Comment content is required'],
+        },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -19,6 +23,10 @@ const commentSchema = new mongoose.Schema(
             ref: 'Comment',
             default: null,
         },
+        replyingToUsername: {
+            type: String,
+            default: null,
+        },
         createdAt: {
             type: Date,
             default: Date.now,
@@ -30,24 +38,23 @@ const commentSchema = new mongoose.Schema(
             virtuals: true,
         },
         timestamps: true,
+        toObject: { virtuals: true },
     }
 );
 
-// Virtual for replies
 commentSchema.virtual('replies', {
     ref: 'Comment',
     localField: '_id',
     foreignField: 'replyingTo',
-    options: { sort: { createdAt: 1 } }, // Sort replies by creation time
+    options: { sort: { createdAt: 1 } }, 
 });
 
-// Index for faster querying
+
 commentSchema.index({ productRequest: 1, replyingTo: 1 });
 
-// Create the model first
 const Comment = mongoose.model('Comment', commentSchema);
 
-// Then use it in the middleware
+
 commentSchema.post(/^find/, async function (docs) {
     if (!docs) return;
 

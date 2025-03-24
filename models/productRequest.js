@@ -188,11 +188,12 @@ productRequestSchema.post(/^findOne/, async function (doc, next) {
     next();
 });
 
-// Add a pre-save hook to ensure consistency
+
 productRequestSchema.pre('save', function (next) {
-    // Ensure upvotes matches upvotedBy length
+  
     this.upvotes = this.upvotedBy.length;
     next();
 });
 
-module.exports = mongoose.model('ProductRequest', productRequestSchema);
+const ProductRequest = mongoose.model('ProductRequest', productRequestSchema);
+module.exports = ProductRequest;

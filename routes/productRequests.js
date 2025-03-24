@@ -11,6 +11,7 @@ const {
     toggleUpvote,
 } = require('../controllers/productRequest');
 const { authorize } = require('../middleware/auth');
+const { createComment } = require('../controllers/comment');
 const {} = require('../controllers/user');
 
 router.get('/', searchForProductRequests, sendResponse);
@@ -31,5 +32,8 @@ router.delete(
     deleteSingleProductRequest,
     sendResponse
 );
+
+
+router.post('/:id/comments', createComment, sendResponse);
 
 module.exports = router;
